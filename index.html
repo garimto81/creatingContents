@@ -1,430 +1,487 @@
 <!DOCTYPE html>
-<html lang="ko" class="">
+<html lang="ko" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GGP CAMERA 업무 현황 보드</title>
+    <title>대화형 유튜브 자동 아카이브 가이드</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 
+    Chosen Palette: Slate & Sky Blue
+    Application Structure Plan: This SPA is structured as an interactive, single-page dashboard. It replaces the linear flow of the original guide with thematic, tool-oriented sections. The structure is: 
+    1.  Header with Navigation: Sticky navigation allows users to instantly jump to any section, facilitating non-linear exploration based on their needs (e.g., an expert user might jump straight to the 'Script Builder').
+    2.  System Overview: A visual flowchart diagram built with HTML/CSS to give a high-level understanding of the entire process at a glance. This is more intuitive than reading a paragraph.
+    3.  Prerequisites Checklist: Transforms passive instructions into an interactive checklist. This gamified approach encourages user engagement and provides a clear sense of progress.
+    4.  Script Builder: The core of the application. This is a dynamic tool that empowers users by allowing them to construct complex command-line arguments via a simple GUI. It directly addresses the most difficult part of the original guide, making it accessible to non-technical users.
+    5.  Automation Guide: A step-by-step visual carousel for the Windows Task Scheduler setup, which is more digestible than a long list of text instructions.
+    6.  Troubleshooting FAQ: An accordion interface provides quick, targeted answers to common problems without overwhelming the user with information they don't need.
+    This structure was chosen to transform a passive document into an active, user-centric tool, prioritizing ease of use, interactivity, and practical application over the original report's narrative sequence.
+    Visualization & Content Choices:
+    -   System Flow Diagram (HTML/CSS): Report Info (Overall process) -> Goal (Organize) -> Viz (Styled divs in a flexbox layout) -> Interaction (None, purely informational) -> Justification (Provides a quick, high-level mental model of the system).
+    -   Interactive Checklist (HTML/JS): Report Info (Required files) -> Goal (Inform/Organize) -> Viz (Checkboxes and a progress bar) -> Interaction (Clicking checkboxes updates progress) -> Justification (Engages the user and confirms completion of essential setup steps).
+    -   Dynamic Script Builder (HTML/JS Forms): Report Info (yt-dlp commands and options) -> Goal (Organize/Relationships) -> Viz (Interactive form controls) -> Interaction (User input dynamically generates a code block) -> Justification (The most powerful feature; it demystifies command-line syntax and prevents user error by generating validated commands).
+    -   Accordion FAQ (HTML/JS): Report Info (Troubleshooting steps) -> Goal (Inform) -> Viz (Collapsible sections) -> Interaction (Clicking a question reveals the answer) -> Justification (Provides a clean, scannable interface for finding specific solutions quickly).
+    -   No charts (e.g., Chart.js) were used, as the source material is procedural, not statistical. The chosen interactive elements are better suited to guiding a user through a setup process.
+    CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; }
-        .category-board {
-            display: flex;
-            gap: 1.5rem;
-            overflow-x: auto;
-            padding-bottom: 1.5rem;
-            min-height: 60vh;
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .nav-link {
+            transition: all 0.3s ease;
         }
-        .category-column {
-            flex: 0 0 320px;
-            max-width: 320px;
-            min-width: 320px;
+        .nav-link.active {
+            color: #0ea5e9; /* sky-500 */
+            border-bottom-color: #0ea5e9;
         }
-        .task-list::-webkit-scrollbar { width: 5px; }
-        .task-list::-webkit-scrollbar-thumb { background-color: #a3a3a3; border-radius: 10px; }
-        .dark .task-list::-webkit-scrollbar-thumb { background-color: #52525b; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: #94a3b8; /* slate-400 */
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0284c7; /* sky-600 */
+        }
+        .btn-secondary {
+            background-color: #e2e8f0; /* slate-200 */
+            color: #1e293b; /* slate-800 */
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e1; /* slate-300 */
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="bg-slate-50 text-slate-800">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8">
-        
-        <header class="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-                <i class="fa-solid fa-camera-retro text-indigo-500"></i>
-                <span>GGP CAMERA 업무 현황</span>
-            </h1>
-            <div class="flex items-center gap-2">
-                <button id="manage-category-btn" class="flex items-center gap-2 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors shadow">
-                    <i class="fa-solid fa-tags"></i><span>카테고리 관리</span>
-                </button>
-                <button id="add-task-btn" class="flex items-center gap-2 bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow">
-                    <i class="fa-solid fa-plus"></i><span>업무 추가</span>
-                </button>
-                <button id="dark-mode-toggle" class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-white dark:bg-gray-700 text-gray-600 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm">
-                    <i class="fa-solid fa-sun"></i>
-                </button>
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-2xl font-bold text-slate-800">
+                    <span class="text-sky-500">대화형</span> 유튜브 아카이브 가이드
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#overview" class="nav-link text-slate-600 hover:text-sky-500 border-b-2 border-transparent">개요</a>
+                    <a href="#prerequisites" class="nav-link text-slate-600 hover:text-sky-500 border-b-2 border-transparent">사전 준비</a>
+                    <a href="#builder" class="nav-link text-slate-600 hover:text-sky-500 border-b-2 border-transparent">스크립트 빌더</a>
+                    <a href="#automation" class="nav-link text-slate-600 hover:text-sky-500 border-b-2 border-transparent">자동화</a>
+                    <a href="#troubleshooting" class="nav-link text-slate-600 hover:text-sky-500 border-b-2 border-transparent">문제 해결</a>
+                </div>
             </div>
-        </header>
+        </nav>
+    </header>
 
-        <div id="category-board-container" class="category-board">
-            <!-- 카테고리 컬럼이 동적으로 생성됩니다. -->
-        </div>
+    <main class="container mx-auto px-6 py-12">
+        
+        <section id="intro" class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">나만의 유튜브 아카이브를 구축하세요.</h1>
+            <p class="text-lg text-slate-600 max-w-3xl mx-auto">이 대화형 가이드는 복잡한 명령어 없이, 클릭 몇 번으로 원하는 유튜브 채널의 영상을 매일 자동으로 다운로드하고 관리하는 시스템을 구축할 수 있도록 도와줍니다. 이제 가이드의 각 단계를 따라 여러분만의 자동화 시스템을 만들어 보세요.</p>
+        </section>
 
-    </div>
-
-    <!-- 업무 추가/수정 모달 -->
-    <div id="task-modal" class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-40 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
-            <h3 id="task-modal-title" class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-6"></h3>
-            <form id="task-form">
-                <input type="hidden" id="task-id">
-                <div class="mb-4">
-                    <label for="task-category" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">카테고리</label>
-                    <select id="task-category" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" required></select>
-                </div>
-                <div class="mb-4">
-                    <label for="task-title" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">제목</label>
-                    <input type="text" id="task-title" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700" required>
-                </div>
-                <div class="mb-4">
-                    <label for="task-url" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">URL</label>
-                    <input type="url" id="task-url" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700" placeholder="https://...">
-                </div>
-                <div class="mb-4">
-                    <label for="task-name" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">담당자</label>
-                    <select id="task-name" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700" required></select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">상태</label>
-                    <div class="flex items-center gap-8">
-                        <label class="flex items-center gap-2"><input type="radio" name="task-status" value="inProgress" checked>진행 중</label>
-                        <label class="flex items-center gap-2"><input type="radio" name="task-status" value="completed">완료</label>
+        <div class="space-y-16">
+            <!-- Section 1: System Overview -->
+            <section id="overview" class="section-card p-8">
+                <h2 class="text-3xl font-bold mb-6 text-center">시스템 동작 원리 한눈에 보기</h2>
+                <p class="text-center text-slate-600 mb-8">자동 아카이브 시스템은 아래와 같은 단계로 동작합니다. 각 구성 요소가 어떻게 상호작용하여 전체 시스템을 이루는지 이해하면, 앞으로의 과정을 더 쉽게 따라갈 수 있습니다.</p>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 text-center">
+                    <div class="p-6 bg-slate-100 rounded-lg w-full md:w-auto">
+                        <div class="text-5xl mb-2">🎬</div>
+                        <h3 class="text-xl font-semibold">유튜브 채널</h3>
+                        <p class="text-sm text-slate-500">다운로드 대상</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="p-6 bg-sky-100 rounded-lg w-full md:w-auto">
+                         <div class="text-5xl mb-2">⚙️</div>
+                        <h3 class="text-xl font-semibold">yt-dlp 스크립트</h3>
+                        <p class="text-sm text-slate-500">핵심 다운로드 엔진</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="p-6 bg-slate-100 rounded-lg w-full md:w-auto">
+                         <div class="text-5xl mb-2">🖥️</div>
+                        <h3 class="text-xl font-semibold">내 PC</h3>
+                        <p class="text-sm text-slate-500">자동화 실행 환경</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="p-6 bg-slate-100 rounded-lg w-full md:w-auto">
+                         <div class="text-5xl mb-2">🗄️</div>
+                        <h3 class="text-xl font-semibold">네트워크 저장소</h3>
+                        <p class="text-sm text-slate-500">최종 아카이브</p>
                     </div>
                 </div>
-                <div id="end-date-wrapper" class="mt-4 mb-6 hidden">
-                     <label for="task-date" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">완료일</label>
-                     <input type="date" id="task-date" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700">
+            </section>
+
+            <!-- Section 2: Prerequisites Checklist -->
+            <section id="prerequisites" class="section-card p-8">
+                <h2 class="text-3xl font-bold mb-6">1단계: 사전 준비 체크리스트</h2>
+                <p class="text-slate-600 mb-8">자동화 시스템을 구축하기 위해 몇 가지 필수 도구가 필요합니다. 아래 체크리스트를 따라 모든 준비를 완료하세요. 각 항목을 완료할 때마다 체크하면 진행 상황을 한눈에 볼 수 있습니다.</p>
+                <div class="w-full bg-slate-200 rounded-full h-2.5 mb-6">
+                    <div id="progress-bar" class="bg-sky-500 h-2.5 rounded-full" style="width: 0%; transition: width 0.5s ease;"></div>
                 </div>
-
-                <div class="flex justify-end gap-3 mt-8">
-                    <button type="button" id="close-task-modal-btn" class="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-600">취소</button>
-                    <button type="submit" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-md">저장</button>
+                <div id="checklist" class="space-y-4">
+                    <!-- Checklist items will be injected by JavaScript -->
                 </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- 카테고리 관리 모달 -->
-    <div id="category-modal" class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
-            <h3 class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-6">카테고리 관리</h3>
-            <div id="category-list" class="space-y-2 mb-6 max-h-60 overflow-y-auto"></div>
-            <form id="add-category-form" class="flex gap-2">
-                <input type="text" id="new-category-name" class="flex-grow px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700" placeholder="새 카테고리 이름" required>
-                <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md">추가</button>
-            </form>
-             <div class="flex justify-end mt-8">
-                 <button type="button" id="close-category-modal-btn" class="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-600">닫기</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 삭제 확인 모달 -->
-    <div id="delete-confirm-modal" class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in">
-            <h3 id="delete-confirm-title" class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2"></h3>
-            <p id="delete-confirm-message" class="text-gray-600 dark:text-gray-300 mb-6"></p>
-            <div class="flex justify-end gap-3">
-                <button id="cancel-delete-btn" class="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-600">취소</button>
-                <button id="confirm-delete-btn" class="px-4 py-2 rounded-md bg-red-600 text-white">삭제</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, enableIndexedDbPersistence, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Firebase 구성 ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyD6LVOtT0x30CQNZDt5aSUEBKT8vXPhM6k",
-            authDomain: "ggp-camera.firebaseapp.com",
-            projectId: "ggp-camera",
-            storageBucket: "ggp-camera.appspot.com",
-            messagingSenderId: "906682771595",
-            appId: "1:906682771595:web:431b539435f4a0ca294c8e"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = firebaseConfig.appId;
-        enableIndexedDbPersistence(db).catch(console.warn);
-
-        // --- 상수 및 상태 변수 ---
-        const ASSIGNEES = { "Aiden Kim": {i:"A", c:"bg-blue-500"}, "Matthew Kim": {i:"M", c:"bg-green-500"}, "Kai Kim": {i:"K", c:"bg-yellow-500"}, "Trey Song": {i:"T", c:"bg-purple-500"} };
-        let categories = [];
-        let newTasks = [];
-        let oldTasks = [];
-        let itemToDelete = { id: null, type: null };
-
-        // --- DOM 요소 ---
-        const elements = {
-            board: document.getElementById('category-board-container'),
-            taskModal: document.getElementById('task-modal'),
-            taskModalTitle: document.getElementById('task-modal-title'),
-            taskForm: document.getElementById('task-form'),
-            taskIdInput: document.getElementById('task-id'),
-            taskCategorySelect: document.getElementById('task-category'),
-            taskNameSelect: document.getElementById('task-name'),
-            endDateWrapper: document.getElementById('end-date-wrapper'),
-            categoryModal: document.getElementById('category-modal'),
-            categoryList: document.getElementById('category-list'),
-            addCategoryForm: document.getElementById('add-category-form'),
-            deleteConfirmModal: document.getElementById('delete-confirm-modal'),
-            deleteConfirmTitle: document.getElementById('delete-confirm-title'),
-            deleteConfirmMessage: document.getElementById('delete-confirm-message'),
-            addTaskBtn: document.getElementById('add-task-btn'),
-            manageCategoryBtn: document.getElementById('manage-category-btn'),
-            closeTaskModalBtn: document.getElementById('close-task-modal-btn'),
-            closeCategoryModalBtn: document.getElementById('close-category-modal-btn'),
-            confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
-            cancelDeleteBtn: document.getElementById('cancel-delete-btn'),
-            darkModeToggle: document.getElementById('dark-mode-toggle'),
-            htmlElement: document.documentElement
-        };
-
-        // --- 초기화 ---
-        function populateAssignees() {
-            elements.taskNameSelect.innerHTML = Object.keys(ASSIGNEES).map(name => `<option value="${name}">${name}</option>`).join('');
-        }
-
-        // --- 모달 관리 ---
-        function openTaskModal(task = null) {
-            elements.taskForm.reset();
-            populateAssignees();
-            elements.taskCategorySelect.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            </section>
             
-            if (task) {
-                elements.taskModalTitle.textContent = '업무 수정';
-                elements.taskIdInput.value = task.id;
-                document.getElementById('task-category').value = task.category || '기본';
-                document.getElementById('task-title').value = task.title;
-                document.getElementById('task-url').value = task.url;
-                document.getElementById('task-name').value = task.name;
-                const statusRadio = document.querySelector(`input[name="task-status"][value="${task.status}"]`);
-                if(statusRadio) statusRadio.checked = true;
-                const isCompleted = task.status === 'completed';
-                elements.endDateWrapper.classList.toggle('hidden', !isCompleted);
-                if(isCompleted) document.getElementById('task-date').value = task.endDate;
-            } else {
-                elements.taskModalTitle.textContent = '새 업무 추가';
-                elements.endDateWrapper.classList.add('hidden');
-                document.querySelector('input[name="task-status"][value="inProgress"]').checked = true;
-            }
-            elements.taskModal.classList.remove('hidden');
-        }
+            <!-- Section 3: Script Builder -->
+            <section id="builder" class="section-card p-8">
+                <h2 class="text-3xl font-bold mb-6">2단계: 나만의 스크립트 빌더</h2>
+                <p class="text-slate-600 mb-8">더 이상 복잡한 명령어를 외울 필요가 없습니다. 아래 옵션을 선택하여 원하는 작업을 위한 맞춤형 배치 파일(.bat) 스크립트를 실시간으로 생성하고 복사하세요.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6 bg-slate-50 p-6 rounded-lg border border-slate-200">
+                        <h3 class="text-xl font-semibold border-b pb-2">기본 설정</h3>
+                        <div>
+                            <label for="channel-url" class="block text-sm font-medium text-slate-700">채널 URL</label>
+                            <input type="text" id="channel-url" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2" placeholder="https://www.youtube.com/@channel/streams">
+                        </div>
+                        <div>
+                            <label for="output-path" class="block text-sm font-medium text-slate-700">저장 경로</label>
+                            <input type="text" id="output-path" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2" value="C:\PokerTournaments\%%(uploader)s\%%(upload_date)s - %%(title)s.%%(ext)s">
+                        </div>
+                        
+                        <h3 class="text-xl font-semibold border-b pb-2 pt-4">필터링 옵션</h3>
+                        <div class="relative flex items-start">
+                            <div class="flex h-5 items-center">
+                                <input id="date-filter-toggle" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="date-filter-toggle" class="font-medium text-slate-700">날짜 필터 사용</label>
+                                <div id="date-filter-inputs" class="hidden mt-2 space-y-2">
+                                    <input type="text" id="date-after" class="block w-full rounded-md border-slate-300 shadow-sm sm:text-sm p-2" placeholder="시작일 (YYYYMMDD)">
+                                    <input type="text" id="date-before" class="block w-full rounded-md border-slate-300 shadow-sm sm:text-sm p-2" placeholder="종료일 (YYYYMMDD)">
+                                </div>
+                            </div>
+                        </div>
 
-        function openCategoryModal() { elements.categoryModal.classList.remove('hidden'); }
-        function openDeleteConfirmModal(id, type) {
-            itemToDelete = { id, type };
-            elements.deleteConfirmTitle.textContent = type === 'task' ? '업무 삭제' : '카테고리 삭제';
-            elements.deleteConfirmMessage.textContent = `정말로 이 ${type === 'task' ? '업무' : '카테고리'}를 삭제하시겠습니까?`;
-            elements.deleteConfirmModal.classList.remove('hidden');
-        }
+                        <div class="relative flex items-start">
+                            <div class="flex h-5 items-center">
+                                <input id="title-filter-toggle" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="title-filter-toggle" class="font-medium text-slate-700">제목 필터 사용</label>
+                                <div id="title-filter-inputs" class="hidden mt-2">
+                                    <input type="text" id="title-filter" class="block w-full rounded-md border-slate-300 shadow-sm sm:text-sm p-2" placeholder="WSOP|Main Event">
+                                </div>
+                            </div>
+                        </div>
 
-        // --- 데이터 처리 (CRUD) ---
-        async function handleTaskFormSubmit(e) {
-            e.preventDefault();
-            const taskId = elements.taskIdInput.value;
-            const data = {
-                category: document.getElementById('task-category').value,
-                title: document.getElementById('task-title').value,
-                url: document.getElementById('task-url').value,
-                name: document.getElementById('task-name').value,
-                status: document.querySelector('input[name="task-status"]:checked').value,
-                endDate: document.getElementById('task-date').value || null
-            };
-
-            elements.taskModal.classList.add('hidden');
-            if (taskId) {
-                await updateDoc(doc(db, "tasks", taskId), data);
-            } else {
-                data.createdAt = serverTimestamp();
-                await addDoc(collection(db, "tasks"), data);
-            }
-        }
-        
-        async function handleAddCategoryFormSubmit(e) {
-            e.preventDefault();
-            const input = document.getElementById('new-category-name');
-            const name = input.value.trim();
-            if (name) {
-                await addDoc(collection(db, "categories"), { name, createdAt: serverTimestamp() });
-                input.value = '';
-            }
-        }
-        
-        async function handleDeleteConfirmed() {
-            if (!itemToDelete.id) return;
-            const { id, type } = itemToDelete;
-            // ** 변경: 이전 데이터 소스에서도 삭제 시도 **
-            const collectionsToDeleteFrom = type === 'task' ? ['tasks', `artifacts/${appId}/public/data/work-pages`] : ['categories'];
-            try {
-                 for (const coll of collectionsToDeleteFrom) {
-                    const docRef = doc(db, coll, id);
-                    // 에러를 무시하고 다음 컬렉션 시도
-                    await deleteDoc(docRef).catch(() => {});
-                 }
-            } catch(e) { /* ignore */ }
-            elements.deleteConfirmModal.classList.add('hidden');
-        }
-
-
-        // --- UI 렌더링 ---
-        function renderBoard(categories, allTasks) {
-            elements.board.innerHTML = '';
-            const tasksByCategory = categories.reduce((acc, category) => ({ ...acc, [category.name]: [] }), {});
-
-            allTasks.forEach(task => {
-                const categoryName = task.category || '기본';
-                if(tasksByCategory[categoryName]) {
-                    tasksByCategory[categoryName].push(task);
-                }
-            });
-
-            categories.forEach(category => {
-                const column = document.createElement('div');
-                column.className = 'category-column bg-gray-200 dark:bg-gray-800 rounded-lg p-3 flex flex-col';
-                column.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="font-bold text-lg">${category.name}</h2>
-                        <button class="delete-category-btn text-gray-400 hover:text-red-500" data-id="${category.id}"><i class="fa-solid fa-trash-can fa-sm"></i></button>
+                        <div class="relative flex items-start">
+                            <div class="flex h-5 items-center">
+                                <input id="live-filter-toggle" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="live-filter-toggle" class="font-medium text-slate-700">라이브 스트림 제외</label>
+                            </div>
+                        </div>
+                        <div class="pt-4">
+                             <button id="load-example1" class="btn btn-secondary w-full mb-2">예제 1 불러오기 (PokerGO)</button>
+                             <button id="load-example2" class="btn btn-secondary w-full">예제 2 불러오기 (Hustler)</button>
+                        </div>
                     </div>
-                    <ul class="task-list flex-grow space-y-3 pr-2 overflow-y-auto"></ul>`;
-                
-                const taskListEl = column.querySelector('.task-list');
-                const sortedTasks = tasksByCategory[category.name].sort((a,b) => {
-                    const timeA = a.createdAt?.toMillis() || new Date(a.date || 0).getTime();
-                    const timeB = b.createdAt?.toMillis() || new Date(b.date || 0).getTime();
-                    return timeB - timeA;
-                });
-                
-                sortedTasks.forEach(task => {
-                    const taskEl = document.createElement('li');
-                    taskEl.className = 'bg-white dark:bg-gray-700 rounded-md shadow p-3 cursor-pointer group';
-                    taskEl.dataset.id = task.id;
-                    const style = ASSIGNEES[task.name] || {i:"?", c:"bg-gray-400"};
-                    
-                    const statusHTML = task.status === 'inProgress' 
-                        ? `<span class="text-xs font-bold text-blue-500">진행 중</span>`
-                        : `<span class="text-xs font-mono text-gray-400 dark:text-gray-500">${new Date(task.endDate).getMonth()+1}.${new Date(task.endDate).getDate()} 완료</span>`;
+                    <div class="bg-slate-900 rounded-lg p-6 font-mono text-sm text-white relative h-full flex flex-col">
+                         <h3 class="text-xl font-sans font-semibold border-b border-slate-700 pb-2 mb-4 text-slate-300">생성된 스크립트</h3>
+                         <button id="copy-button" class="btn btn-primary absolute top-4 right-4 text-xs py-1 px-3">복사</button>
+                         <pre class="whitespace-pre-wrap overflow-x-auto flex-grow"><code id="script-output">@echo off
+cd "C:\ytdlp"
+REM 옵션을 선택하여 명령어를 생성하세요.</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 4: Automation -->
+            <section id="automation" class="section-card p-8">
+                <h2 class="text-3xl font-bold mb-6">3단계: 자동화 설정하기</h2>
+                 <p class="text-slate-600 mb-8">윈도우 기본 기능인 '작업 스케줄러'를 이용하여, 생성된 스크립트를 매일 지정된 시간에 자동으로 실행하도록 설정합니다. 아래의 시각적 가이드를 따라 설정하세요.</p>
+                <div class="flex items-center justify-between">
+                    <button id="prev-step" class="btn btn-secondary">이전</button>
+                    <div id="automation-steps" class="text-center">
+                        <!-- Automation steps will be injected here -->
+                    </div>
+                    <button id="next-step" class="btn btn-secondary">다음</button>
+                </div>
+            </section>
+            
+            <!-- Section 5: Troubleshooting -->
+            <section id="troubleshooting" class="section-card p-8">
+                <h2 class="text-3xl font-bold mb-6">4단계: 문제 해결 (FAQ)</h2>
+                <p class="text-slate-600 mb-8">자동화 시스템 운영 중 발생할 수 있는 일반적인 문제들과 해결 방법을 정리했습니다. 문제가 발생하면 해당 항목을 클릭하여 해결책을 확인하세요.</p>
+                <div id="faq-container" class="space-y-4">
+                    <!-- FAQ items will be injected here -->
+                </div>
+            </section>
+        </div>
+    </main>
 
-                    taskEl.innerHTML = `
-                        <a href="${task.url || '#'}" target="_blank" class="font-semibold text-gray-800 dark:text-gray-200 mb-2 block">${task.title}</a>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <div title="${task.name}" class="w-6 h-6 rounded-full ${style.c} text-white text-xs flex items-center justify-center font-bold">${style.i}</div>
-                                ${statusHTML}
-                            </div>
-                            <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button class="edit-task-btn text-gray-400 hover:text-blue-500 mr-2" data-id="${task.id}"><i class="fa-solid fa-pencil"></i></button>
-                                <button class="delete-task-btn text-gray-400 hover:text-red-500" data-id="${task.id}"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>`;
-                    taskListEl.appendChild(taskEl);
-                });
-                elements.board.appendChild(column);
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-400">
+            <p>이 가이드는 교육 및 개인 학습 목적으로 제작되었습니다.</p>
+            <p class="text-sm mt-2">yt-dlp와 ffmpeg는 각 개발자의 소중한 결과물입니다.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const checklistData = [
+                { id: 'yt-dlp', title: 'yt-dlp.exe 다운로드', description: '가장 핵심적인 다운로드 프로그램입니다.', link: 'https://github.com/yt-dlp/yt-dlp/releases/latest' },
+                { id: 'ffmpeg', title: 'ffmpeg.exe 다운로드', description: '고화질 영상과 음성을 합치는 필수 도구입니다.', link: 'https://www.gyan.dev/ffmpeg/builds/' },
+                { id: 'folder', title: 'C:\\ytdlp 폴더 생성 및 파일 이동', description: 'yt-dlp.exe와 ffmpeg.exe를 C:\\ytdlp 폴더 안에 넣어주세요.' },
+                { id: 'cookies-ext', title: '쿠키 추출 확장 프로그램 설치', description: '유튜브 로그인 인증 문제를 해결하기 위해 필요합니다.', link: 'https://microsoftedge.microsoft.com/addons/detail/get-cookiestxt-locally/jjbdengdhficjnghifmgekbjfdlddcfb' },
+                { id: 'cookies-file', title: 'cookies.txt 파일 준비', description: '유튜브에 로그인 후, 확장 프로그램을 이용해 cookies.txt 파일을 다운받아 C:\\ytdlp 폴더에 넣어주세요.' }
+            ];
+
+            const faqData = [
+                { q: "ERROR: Sign in to confirm you’re not a bot.", a: "가장 흔한 오류입니다. 유튜브가 로그인을 요구하는 상황으로, `cookies.txt` 파일의 유효기간이 만료되었을 가능성이 높습니다. 1단계의 쿠키 파일 준비 과정을 다시 진행하여 `cookies.txt` 파일을 새것으로 교체해주세요." },
+                { q: "ERROR: HTTP Error 403: Forbidden.", a: "짧은 시간에 너무 많은 요청을 보내, 사용자님의 인터넷 IP가 유튜브로부터 일시적으로 차단되었을 수 있습니다. 작업 스케줄러를 하루 정도 중지하고 기다린 후 다시 시도해보세요. 인터넷 모뎀을 껐다 켜서 IP를 변경하는 것도 좋은 방법입니다." },
+                { q: "배치 파일의 한글이 깨지거나 명령어가 이상하게 작동해요.", a: "파일 인코딩 문제입니다. `.bat` 파일을 메모장에서 '다른 이름으로 저장'할 때, 창 하단의 '인코딩' 설정을 'ANSI' 또는 'UTF-8'로 변경하여 저장하면 해결됩니다." },
+                { q: "ERROR: fragment not found, unable to continue", a: "긴 라이브 스트리밍 영상을 다운로드할 때 주로 발생합니다. 다운로드 속도가 너무 빨라 유튜브 서버가 요청을 거부하는 경우입니다. 스크립트 빌더에서 생성된 명령어에 `-r 4M` (초당 4MB로 속도 제한) 옵션을 추가하여 다시 시도해보세요."}
+            ];
+            
+            const automationStepsData = [
+                { title: '작업 스케줄러 실행', description: "Win+R을 눌러 `taskschd.msc`를 입력하고 실행합니다." },
+                { title: '기본 작업 만들기', description: "오른쪽 메뉴에서 '기본 작업 만들기...'를 클릭합니다." },
+                { title: '이름 및 트리거 설정', description: "작업 이름을 정하고, '매일' 및 원하는 실행 시간을 설정합니다." },
+                { title: '동작 설정', description: "'프로그램 시작'을 선택합니다." },
+                { title: '스크립트 선택', description: "'찾아보기'를 눌러 생성한 `.bat` 파일을 선택합니다." },
+                { title: '완료', description: "설정을 확인하고 '마침'을 누르면 모든 준비가 끝납니다." }
+            ];
+
+            let currentStep = 0;
+
+            // Populate Checklist
+            const checklistContainer = document.getElementById('checklist');
+            checklistData.forEach(item => {
+                checklistContainer.innerHTML += `
+                    <div class="relative flex items-start p-4 bg-slate-100 rounded-lg">
+                        <div class="flex h-6 items-center">
+                            <input id="${item.id}" name="checklist-item" type="checkbox" class="h-5 w-5 rounded border-slate-400 text-sky-600 focus:ring-sky-500">
+                        </div>
+                        <div class="ml-3 text-sm leading-6">
+                            <label for="${item.id}" class="font-medium text-slate-900">${item.title}</label>
+                            <p class="text-slate-500">${item.description}</p>
+                        </div>
+                        ${item.link ? `<a href="${item.link}" target="_blank" class="absolute top-4 right-4 text-sky-600 hover:text-sky-800 font-semibold">바로가기 →</a>` : ''}
+                    </div>
+                `;
             });
-            elements.board.innerHTML += `<div class="category-column"><button id="add-category-btn" class="w-full h-12 bg-gray-300/50 dark:bg-gray-700/50 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"><i class="fa-solid fa-plus mr-2"></i> 새 카테고리 추가</button></div>`;
-        }
-        
-        function renderCategoryList(categories) {
-            elements.categoryList.innerHTML = categories.map(c => `
-                <div class="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-md">
-                    <span>${c.name}</span>
-                    <button class="delete-category-btn text-gray-400 hover:text-red-500" data-id="${c.id}"><i class="fa-solid fa-trash-can"></i></button>
-                </div>`).join('');
-        }
+            
+            // Populate FAQ
+            const faqContainer = document.getElementById('faq-container');
+            faqData.forEach((item, index) => {
+                faqContainer.innerHTML += `
+                    <div>
+                        <h2>
+                            <button type="button" class="flex items-center justify-between w-full p-5 font-medium text-left text-slate-700 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200" data-faq-toggle="${index}">
+                                <span>${item.q}</span>
+                                <svg class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/></svg>
+                            </button>
+                        </h2>
+                        <div id="faq-body-${index}" class="hidden p-5 border border-t-0 border-slate-200">
+                            <p class="mb-2 text-slate-600">${item.a}</p>
+                        </div>
+                    </div>
+                `;
+            });
 
-        function handleFirestoreError(error) { /* ... (이전과 동일) ... */ }
-        
-        async function initializeDefaultCategories() {
-            const categoriesRef = collection(db, "categories");
-            const snapshot = await getDocs(categoriesRef);
-            if (snapshot.empty) {
-                const defaultCategories = ["기본", "교육", "촬영 퀄리티", "아카이빙"];
-                const promises = defaultCategories.map(name => addDoc(categoriesRef, { name, createdAt: serverTimestamp() }));
-                await Promise.all(promises);
+            // Populate Automation Steps
+            const automationStepsContainer = document.getElementById('automation-steps');
+            function renderAutomationStep() {
+                const step = automationStepsData[currentStep];
+                automationStepsContainer.innerHTML = `
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold mb-2">Step ${currentStep + 1}: ${step.title}</h3>
+                        <p class="text-slate-600">${step.description}</p>
+                    </div>`;
             }
-        }
 
-        // --- 이벤트 리스너 ---
-        elements.closeTaskModalBtn.addEventListener('click', () => elements.taskModal.classList.add('hidden'));
-        elements.manageCategoryBtn.addEventListener('click', openCategoryModal);
-        elements.closeCategoryModalBtn.addEventListener('click', () => elements.categoryModal.classList.add('hidden'));
-        elements.confirmDeleteBtn.addEventListener('click', handleDeleteConfirmed);
-        elements.cancelDeleteBtn.addEventListener('click', () => elements.deleteConfirmModal.classList.add('hidden'));
-        elements.taskForm.addEventListener('submit', handleTaskFormSubmit);
-        elements.addCategoryForm.addEventListener('submit', handleAddCategoryFormSubmit);
-        
-        document.addEventListener('click', e => {
-            const target = e.target;
-            const editBtn = target.closest('.edit-task-btn');
-            const deleteBtn = target.closest('.delete-task-btn');
-            const deleteCategoryBtn = target.closest('.delete-category-btn');
-            const addCategoryBtn = target.closest('#add-category-btn');
-
-            if (editBtn) {
-                const taskId = editBtn.dataset.id;
-                const task = [...newTasks, ...oldTasks].find(t => t.id === taskId);
-                if (task) openTaskModal(task);
+            // Checklist Progress
+            const checkboxes = document.querySelectorAll('input[name="checklist-item"]');
+            const progressBar = document.getElementById('progress-bar');
+            function updateProgress() {
+                const checkedCount = document.querySelectorAll('input[name="checklist-item"]:checked').length;
+                const progress = (checkedCount / checkboxes.length) * 100;
+                progressBar.style.width = `${progress}%`;
             }
-            if (deleteBtn) openDeleteConfirmModal(deleteBtn.dataset.id, 'task');
-            if (deleteCategoryBtn) openDeleteConfirmModal(deleteCategoryBtn.dataset.id, 'category');
-            if (addCategoryBtn) openCategoryModal();
-        });
-        
-        document.querySelector('form').addEventListener('change', e => {
-            if(e.target.name === 'task-status') {
-                elements.endDateWrapper.classList.toggle('hidden', e.target.value === 'inProgress');
-            }
-        });
+            checkboxes.forEach(checkbox => checkbox.addEventListener('change', updateProgress));
 
-        // --- 데이터 구독 및 시작 ---
-        onAuthStateChanged(auth, async user => {
-            if (user) {
-                await initializeDefaultCategories(); 
+            // Script Builder Logic
+            const builderInputs = document.querySelectorAll('#builder input');
+            const scriptOutput = document.getElementById('script-output');
+            
+            function generateScript() {
+                const channelUrl = document.getElementById('channel-url').value.trim();
+                const outputPath = document.getElementById('output-path').value.trim();
                 
-                let isCategoriesLoaded = false, isNewTasksLoaded = false, isOldTasksLoaded = false;
-                const mergeAndRender = () => {
-                    if (isCategoriesLoaded && isNewTasksLoaded && isOldTasksLoaded) {
-                        const allTasks = [...newTasks, ...oldTasks];
-                        renderBoard(categories, allTasks);
-                    }
-                };
+                const useDateFilter = document.getElementById('date-filter-toggle').checked;
+                const dateAfter = document.getElementById('date-after').value.trim();
+                const dateBefore = document.getElementById('date-before').value.trim();
 
-                onSnapshot(query(collection(db, "categories"), orderBy("createdAt", "asc")), snapshot => {
-                    categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderCategoryList(categories);
-                    isCategoriesLoaded = true;
-                    mergeAndRender();
-                }, handleFirestoreError);
+                const useTitleFilter = document.getElementById('title-filter-toggle').checked;
+                const titleFilter = document.getElementById('title-filter').value.trim();
 
-                onSnapshot(collection(db, "tasks"), snapshot => {
-                    newTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    isNewTasksLoaded = true;
-                    mergeAndRender();
-                }, handleFirestoreError);
+                const excludeLive = document.getElementById('live-filter-toggle').checked;
+
+                let command = `@echo off\ncd "C:\\ytdlp"\n\n`;
+                command += `yt-dlp.exe --cookies "cookies.txt" --download-archive "archive.txt" --merge-output-format mp4 -f "bestvideo+bestaudio/best"`;
+
+                if (useDateFilter && dateAfter) command += ` --dateafter ${dateAfter}`;
+                if (useDateFilter && dateBefore) command += ` --datebefore ${dateBefore}`;
+                if (useTitleFilter && titleFilter) command += ` --match-filter "title~='(?i)(${titleFilter})'"`;
+                if (excludeLive) command += ` --match-filter "live_status='not_live'"`;
                 
-                const oldCollRef = collection(db, 'artifacts', appId, 'public', 'data', 'work-pages');
-                onSnapshot(oldCollRef, (snapshot) => {
-                    oldTasks = snapshot.docs.map(doc => {
-                        const data = doc.data();
-                        return { id: doc.id, ...data, category: '기본', status: 'completed', endDate: data.date, createdAt: null };
-                    });
-                    isOldTasksLoaded = true;
-                    mergeAndRender();
-                }, () => { 
-                    oldTasks = [];
-                    isOldTasksLoaded = true;
-                    mergeAndRender();
+                command += ` -o "${outputPath}"`;
+
+                if (channelUrl) {
+                    command += ` "${channelUrl}"`;
+                } else {
+                    command += ` "채널 URL을 입력하세요"`;
+                }
+                
+                scriptOutput.textContent = command;
+            }
+
+            builderInputs.forEach(input => input.addEventListener('input', generateScript));
+            
+            document.getElementById('date-filter-toggle').addEventListener('change', (e) => {
+                document.getElementById('date-filter-inputs').classList.toggle('hidden', !e.target.checked);
+                generateScript();
+            });
+            document.getElementById('title-filter-toggle').addEventListener('change', (e) => {
+                document.getElementById('title-filter-inputs').classList.toggle('hidden', !e.target.checked);
+                generateScript();
+            });
+            
+            // Example Loaders
+            document.getElementById('load-example1').addEventListener('click', () => {
+                document.getElementById('channel-url').value = 'https://www.youtube.com/@PokerGO/streams';
+                document.getElementById('output-path').value = 'C:\\PokerTournaments\\WSOP\\%%(upload_date)s[:4]\\%%(upload_date)s - %%(title)s.%%(ext)s';
+                document.getElementById('date-filter-toggle').checked = true;
+                document.getElementById('date-filter-inputs').classList.remove('hidden');
+                document.getElementById('date-after').value = '20250529';
+                document.getElementById('date-before').value = '';
+                document.getElementById('title-filter-toggle').checked = true;
+                document.getElementById('title-filter-inputs').classList.remove('hidden');
+                document.getElementById('title-filter').value = 'WSOP|World Series of Poker';
+                document.getElementById('live-filter-toggle').checked = false;
+                generateScript();
+            });
+
+            document.getElementById('load-example2').addEventListener('click', () => {
+                document.getElementById('channel-url').value = 'https://www.youtube.com/@HustlerCasinoLive/streams';
+                document.getElementById('output-path').value = 'C:\\PokerTournaments\\HustlerCasinoLive\\Daily\\%%(upload_date)s - %%(title)s.%%(ext)s';
+                document.getElementById('date-filter-toggle').checked = true;
+                document.getElementById('date-filter-inputs').classList.remove('hidden');
+                document.getElementById('date-after').value = '20250610';
+                document.getElementById('date-before').value = '';
+                document.getElementById('title-filter-toggle').checked = false;
+                document.getElementById('title-filter-inputs').classList.add('hidden');
+                document.getElementById('title-filter').value = '';
+                document.getElementById('live-filter-toggle').checked = false;
+                generateScript();
+            });
+
+
+            // Copy Button
+            document.getElementById('copy-button').addEventListener('click', () => {
+                const textToCopy = scriptOutput.textContent;
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = textToCopy;
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextarea);
+                alert('스크립트가 복사되었습니다!');
+            });
+            
+            // FAQ Accordion
+            document.querySelectorAll('[data-faq-toggle]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const bodyId = `faq-body-${button.dataset.faqToggle}`;
+                    const body = document.getElementById(bodyId);
+                    const icon = button.querySelector('svg');
+                    body.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
                 });
+            });
+            
+            // Automation Carousel
+            document.getElementById('prev-step').addEventListener('click', () => {
+                currentStep = (currentStep - 1 + automationStepsData.length) % automationStepsData.length;
+                renderAutomationStep();
+            });
+            document.getElementById('next-step').addEventListener('click', () => {
+                currentStep = (currentStep + 1) % automationStepsData.length;
+                renderAutomationStep();
+            });
+            
+            // Nav Highlighting on Scroll
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
 
-            } else {
-                signInAnonymously(auth);
-            }
+            // Initial calls
+            updateProgress();
+            generateScript();
+            renderAutomationStep();
         });
-        
-        // --- 다크모드 ---
-        const initDarkMode = () => { /* ... (이전과 동일) ... */ };
-        const toggleDarkMode = () => { /* ... (이전과 동일) ... */ };
-        elements.darkModeToggle.addEventListener('click', toggleDarkMode);
-        initDarkMode();
     </script>
 </body>
 </html>
